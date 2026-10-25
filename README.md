@@ -1,6 +1,6 @@
 # 5.0 Character Ledger
 
-A working Flutter web/Android app based on **Rags – 5.0 Brett Character Sheet**. The Google Sheet is unchanged. Imported data and formulas live in `assets/reference.json`; subsequent character edits live in the app's database.
+A working Flutter web/Android app based on **Rags - 5.0 Brett Character Sheet**. The Google Sheet is unchanged. Imported data and formulas live in `assets/reference.json`; subsequent character edits live in the app's database.
 
 ## Try it
 
@@ -16,7 +16,7 @@ The script uses the Flutter installation set up on this computer. On another com
 
 The supplied VS Code configuration keeps Flutter, Gradle, and Android debug state under `Documents/Codex/tools`, including `android-user` for the development keystore. This avoids changing any existing Android signing keys.
 
-**Explore the Rags reference locally** works without signing in. It saves edits in that browser/device only. Those edits are separate from shared characters; use **Rules workshop → Copy character backup / Restore backup** to transfer editable values explicitly. Clearing browser storage clears local exploration. Signing out preserves the local exploration copy.
+**Explore the Rags reference locally** works without signing in. It saves edits in that browser/device only. Those edits are separate from shared characters; use **Rules workshop -> Copy character backup / Restore backup** to transfer editable values explicitly. Clearing browser storage clears local exploration. Signing out preserves the local exploration copy.
 
 ## What is included
 
@@ -28,13 +28,13 @@ The supplied VS Code configuration keeps Flutter, Gradle, and Android debug stat
 
 ## Preserve the house rules
 
-The app deliberately preserves the spreadsheet's behavior. It is not a generic D&D rules engine. Rags initially has **236/218 HP** because damage taken is **−18**. Strong Ideals currently bypasses the ordinary Will calculation. Luck's temporary modifier is present in the sheet but is not used by its formula. The engine retains these behaviors.
+The app deliberately preserves the spreadsheet's behavior. It is not a generic D&D rules engine. Rags initially has **236/218 HP** because damage taken is **-18**. Strong Ideals currently bypasses the ordinary Will calculation. Luck's temporary modifier is present in the sheet but is not used by its formula. The engine retains these behaviors.
 
 Condition descriptions can include narrative restrictions, resistance, or disadvantage that the sheet doesn't encode numerically. Those descriptions remain available, but the app does not invent numerical effects or spend actions, apply resistance, restore resources, or advance turns automatically. Equipment descriptions likewise do not automatically grant bonuses: edit the same stat inputs used in the original sheet.
 
 The source's redundant closing parentheses in several size formulas are tolerated by the importer. Unsupported formulas report errors rather than silently reusing a stale calculated result. The `IMAGE` formula is presentation-only and its tokenized external artwork is not fetched.
 
-New characters start as **copies of Rags**, with a new name and owner; they are not blank character-builder templates. Complete class/feat/ancestry catalogs were not present in this one reference sheet. Existing choices use its validation lists and progression tables. Some classes have missing progression entries in the original Code tab; changes that cannot calculate are rejected. Supported levels are 1–20.
+New characters start as **copies of Rags**, with a new name and owner; they are not blank character-builder templates. Complete class/feat/ancestry catalogs were not present in this one reference sheet. Existing choices use its validation lists and progression tables. Some classes have missing progression entries in the original Code tab; changes that cannot calculate are rejected. Supported levels are 1-20.
 
 ## Sharing and backups
 
@@ -80,7 +80,7 @@ All pages now use warm ivory paper, bundled Libre Baskerville serif type, dark i
 
 Descriptions in Abilities and expanded Spellbook entries, plus Pack item names, can be clicked and edited in place with explicit Save and Cancel. Quick Notes remains a continuous inline editor. A static dependency audit includes every formula branch and range; calculation-linked fields do not get the new inline editors. Pack weights retain their existing dialog and calculation behavior.
 
-Each ability group has Add Ability; each spell level has Add Spell, removable entries with Undo, and an editable spell-slot count (0–30). Added entries and slot lists live in validated `App!entry_*` / `App!slots_*` character override records. They are independent of the sheet rules and use the same local/server persistence, owner/DM authorization, revisions, history, and character backups. Existing source entries keep their original cell identities. No original Google Sheet or reference asset is changed.
+Each ability group has Add Ability; each spell level has Add Spell, removable entries with Undo, and an editable spell-slot count (0-30). Added entries and slot lists live in validated `App!entry_*` / `App!slots_*` character override records. They are independent of the sheet rules and use the same local/server persistence, owner/DM authorization, revisions, history, and character backups. Existing source entries keep their original cell identities. No original Google Sheet or reference asset is changed.
 
 The appearance and code before this redesign are saved at `work/before-cardless-and-inline-editing.zip` in the workspace root. Tests cover inline save/cancel, add/remove/undo, slot-count changes, persisted Pack text, server schema validation and reopening, and unchanged results for all 225 formulas after text edits.
 
@@ -90,7 +90,7 @@ Dark mode is the default when no appearance preference has been saved. An explic
 
 ## Second video palette trial
 
-Adapted `palette_changes2.mp4` to the current open ledger layout: aqua for nonnegative numeric values, current HP and its progress bar, attack rolls/damage/range/critical details, ability modifiers, and skills; rose for negative values, action controls, and attack-variety glyphs; cooler slate-blue rules. The follow-up trial uses the video�s deep navy background (#0C1827), a darker blue sidebar, and subtle blue control surfaces. Ivory text, serif type, spacing, and line weights remain. Light mode uses deeper aqua and rose inks for readable contrast on ivory paper. Colors only: the reference data and formulas are unchanged. The pre-trial source is saved at `C:/Sandbox/Codex_C/palette-review-2/before-video-2.zip`.
+Adapted `palette_changes2.mp4` to the current open ledger layout: aqua for nonnegative numeric values, current HP and its progress bar, attack rolls/damage/range/critical details, ability modifiers, and skills; rose for negative values, action controls, and attack-variety glyphs; cooler slate-blue rules. The follow-up trial uses the video's deep navy background (#0C1827), a darker blue sidebar, and subtle blue control surfaces. Ivory text, serif type, spacing, and line weights remain. Light mode uses deeper aqua and rose inks for readable contrast on ivory paper. Colors only: the reference data and formulas are unchanged. The pre-trial source is saved at `C:/Sandbox/Codex_C/palette-review-2/before-video-2.zip`.
 
 ## Earlier palette 6 trial
 
