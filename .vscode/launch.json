@@ -1,0 +1,7 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {"name":"5.0 Android (emulator server)","request":"launch","type":"dart","program":"lib/main.dart","toolArgs":["--dart-define=API_BASE=http://10.0.2.2:8080"]},
+    {"name":"5.0 campaign server","request":"launch","type":"dart","program":"server/bin/server.dart","cwd":"${workspaceFolder}/server"}
+  ]
+}
