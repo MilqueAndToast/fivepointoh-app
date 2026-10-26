@@ -19,6 +19,7 @@ import 'character_data.dart';
 import 'appearance.dart';
 import 'direct_editor.dart';
 import 'category_colors.dart';
+import 'health_adjustment.dart';
 
 void main() => runApp(const LedgerApp());
 
@@ -966,14 +967,18 @@ class _LedgerState extends State<Ledger> {
                 visualDensity: VisualDensity.standard,
               );
               return Wrap(
+                crossAxisAlignment: WrapCrossAlignment.start,
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  FilledButton.icon(
-                    style: buttonStyle,
-                    onPressed: adjustHealth,
-                    icon: const Icon(Icons.add, size: 17),
-                    label: const DiceText('Damage / Healing'),
+                  SizedBox(
+                    width: constraints.maxWidth.clamp(0, 220).toDouble(),
+                    child: HealthAdjustment(
+                      onApply: (amount) => commit({
+                        'Main!AU4': SheetEngine.number(raw('AU4')) + amount,
+                      }),
+                      onEditingChanged: (value) => markDraft('health', value),
+                    ),
                   ),
                   OutlinedButton(
                     key: const ValueKey('hit-dice'),
@@ -998,88 +1003,6 @@ class _LedgerState extends State<Ledger> {
       ),
       color: SheetPalette.of(context).vitality,
     );
-  }
-
-  Future<void> adjustHealth() async {
-    final controller = TextEditingController();
-    bool heal = false;
-    String? error;
-    bool busy = false;
-    editing = true;
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, set) => AlertDialog(
-          title: const DiceText('Damage / Healing'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: DiceText('Take Damage')),
-                  ButtonSegment(value: true, label: DiceText('Heal')),
-                ],
-                selected: {heal},
-                onSelectionChanged: busy
-                    ? null
-                    : (s) => set(() => heal = s.first),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: controller,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  errorText: error,
-                ),
-              ),
-              const SizedBox(height: 12),
-              DiceText(
-                'Applies the exact amount. Damage resistance and excess healing are not assumed.',
-                style: TextStyle(
-                  color: SheetPalette.of(context).muted,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: busy ? null : () => Navigator.pop(ctx),
-              child: const DiceText('Cancel'),
-            ),
-            FilledButton(
-              onPressed: busy
-                  ? null
-                  : () async {
-                      final amount = num.tryParse(controller.text);
-                      if (amount == null || amount < 0) {
-                        set(() => error = 'Enter a positive amount.');
-                        return;
-                      }
-                      set(() => busy = true);
-                      try {
-                        await commit({
-                          'Main!AU4':
-                              SheetEngine.number(raw('AU4')) +
-                              (heal ? -amount : amount),
-                        });
-                        if (ctx.mounted) Navigator.pop(ctx);
-                      } catch (e) {
-                        set(() {
-                          error = '$e';
-                          busy = false;
-                        });
-                      }
-                    },
-              child: DiceText(busy ? 'Saving…' : 'Apply'),
-            ),
-          ],
-        ),
-      ),
-    );
-    editing = false;
-    controller.dispose();
   }
 
   Widget openStats(List<Widget> children, {double minWidth = 100}) =>
