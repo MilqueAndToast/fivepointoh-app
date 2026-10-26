@@ -2,6 +2,8 @@
 
 A working Flutter web/Android app based on **Rags - 5.0 Brett Character Sheet**. The Google Sheet is unchanged. Imported data and formulas live in `assets/reference.json`; subsequent character edits live in the app's database.
 
+![Character ledger Overview in dark mode, showing vitality, defenses and movement, attacks, ability scores, turn resources, conditions, and skills.](docs/images/overview-dark.png)
+
 ## Try it
 
 Open this folder in VS Code. In a PowerShell terminal run:
