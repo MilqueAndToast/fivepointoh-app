@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Daylight: ivory paper, ink, and burgundy. Dark mode retains the green palette.
+// Ivory/ink daylight; evergreen paper with neutral ivory ink after dark.
 const sheetBackground = Color(0xfff8f5ee);
 const sheetSurface = sheetBackground;
 const sheetTeal = Color(0xff74202a);
@@ -74,14 +74,14 @@ class SheetPalette {
     surface: Color(0xff091413),
     deep: Color(0xff060e0d),
     surfaceHigh: Color(0xff18382e),
-    text: Color(0xfff1f6f0),
-    aqua: Color(0xffb0e4cc),
-    muted: Color(0xff99b5a7),
-    cutout: Color(0xffd0e1d6),
+    text: Color(0xfff3eee4),
+    aqua: Color(0xffeee5d5),
+    muted: Color(0xffb8b2a8),
+    cutout: Color(0xffded6c8),
     border: Color(0xff408a71),
-    accent: Color(0xff7ccca7),
-    teal: Color(0xff88c2aa),
-    concentration: Color(0xffa9d2bf),
+    accent: Color(0xffe8dfcf),
+    teal: Color(0xffd1c6b4),
+    concentration: Color(0xffcdc4b6),
     primaryContainer: Color(0xff285a48),
     vitality: Color(0xff091413),
     onAccent: Color(0xff091413),

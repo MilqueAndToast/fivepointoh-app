@@ -93,6 +93,7 @@ class _LedgerState extends State<Ledger> {
   String page = 'Overview', search = '', status = '';
   final Set<String> expandedSpells = {};
   final Set<String> collapsedAbilities = {};
+  bool resourcesExpanded = true, conditionsExpanded = true;
   static const abilityGroups = [
     ('Class', 'D', 'M', 'B', 6, 35),
     ('Trade', 'D', 'M', 'B', 41, 56),
@@ -1162,172 +1163,238 @@ class _LedgerState extends State<Ledger> {
             )
             .toList(),
       );
-  Widget resources() => box(
+  Widget collapsibleSection({
+    required String title,
+    required String id,
+    required bool expanded,
+    required VoidCallback toggle,
+    required List<Widget> children,
+  }) => box(
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        heading('Turn resources'),
-        DirectEditor(
-          key: ValueKey('resources-${record?['id'] ?? 'local'}'),
-          name: 'Resources',
-          values: {'Main!AR25': raw('AR25')},
-          integers: const {'Main!AR25'},
-          onEditingChanged: (value) => markDraft('resources', value),
-          onSave: commit,
-          builder: (context, draft) => resourceRow(
-            'Reactions',
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 58,
-                  child: draft.field(
-                    'Main!AR25',
-                    'Reactions remaining',
-                    align: TextAlign.end,
-                  ),
+        Tooltip(
+          message: '${expanded ? 'Collapse' : 'Expand'} $title',
+          child: Semantics(
+            button: true,
+            expanded: expanded,
+            child: InkWell(
+              key: ValueKey('toggle-$id'),
+              onTap: () {
+                FocusScope.of(context).unfocus();
+                toggle();
+              },
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DiceText(
+                        title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    Icon(expanded ? Icons.expand_less : Icons.expand_more),
+                  ],
                 ),
-                DiceText(v('AT25')),
-              ],
+              ),
             ),
           ),
         ),
-        resourceRow(
-          'Shield bonus lost',
-          Semantics(
-            label: 'Shield bonus lost',
-            child: resourceChoice('AW25', 'Shield bonus lost', [
-              0,
-              2,
-              3,
-              4,
-              6,
-              8,
-            ]),
-          ),
-        ),
-        Wrap(
-          spacing: 7,
-          runSpacing: 6,
-          children: [
-            for (final (address, name) in [
-              ('BB25', 'Shield I'),
-              ('BD25', 'Shield II'),
-            ])
-              FilterChip(
-                key: ValueKey('resource-$address'),
-                label: Text(
-                  '$name ${raw(address) == true ? 'Equipped' : 'Away'}',
+        // Keep inline drafts and control state when the section is folded.
+        Offstage(
+          offstage: !expanded,
+          child: ExcludeFocus(
+            excluding: !expanded,
+            child: TickerMode(
+              enabled: expanded,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: children,
                 ),
-                selected: raw(address) == true,
-                onSelected: (value) => resourceChange(address, value),
               ),
-          ],
-        ),
-        resourceRow(
-          'Strong Ideals',
-          Semantics(
-            toggled: raw('BG25') == true,
-            child: TextButton.icon(
-              key: const ValueKey('resource-BG25'),
-              onPressed: () => resourceChange('BG25', raw('BG25') != true),
-              icon: Icon(
-                raw('BG25') == true
-                    ? Icons.check_box_outlined
-                    : Icons.check_box_outline_blank,
-                size: 18,
-              ),
-              label: Text(raw('BG25') == true ? 'Active' : 'Inactive'),
             ),
           ),
-        ),
-        resourceRow(
-          'Allies ahead in initiative',
-          Semantics(
-            label: 'Allies ahead in initiative',
-            child: resourceChoice('BJ25', 'Allies ahead in initiative', [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-            ]),
-          ),
-        ),
-        const SizedBox(height: 6),
-        textLabel('Hero points'),
-        Wrap(
-          children: [
-            for (final (i, address) in ['AN25', 'AO25', 'AP25'].indexed)
-              IconButton(
-                key: ValueKey('resource-$address'),
-                onPressed: () => resourceChange(address, raw(address) != true),
-                tooltip: 'Toggle Hero Point ${i + 1}',
-                icon: Icon(
-                  raw(address) == true ? Icons.stars : Icons.star_border,
-                  color: SheetPalette.of(context).accent,
-                ),
-              ),
-          ],
-        ),
-        DiceText(
-          'Resources change only when you edit them; actions are not spent automatically.',
-          style: TextStyle(color: SheetPalette.of(context).muted, fontSize: 11),
         ),
       ],
     ),
   );
-  Widget conditions() => box(
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        heading('Conditions', sub: 'Toggle to recalculate affected values'),
-        LayoutBuilder(
-          builder: (context, c) {
-            final columns = c.maxWidth >= 360 ? 3 : 2;
-            return Wrap(
-              children: [
-                for (var r = 5; r <= 19; r++)
-                  if (v('BG$r').isNotEmpty)
-                    SizedBox(
-                      width: c.maxWidth / columns,
-                      child: Tooltip(
-                        message:
-                            rules.cell('Main', 'BG$r')['note'] ??
-                            'No description in source',
-                        child: CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          dense: true,
-                          visualDensity: VisualDensity.compact,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            v('BG$r'),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          value: raw('BF$r') == true,
-                          onChanged: (value) async {
-                            try {
-                              await commit({'Main!BF$r': value == true});
-                            } catch (error) {
-                              notify(error);
-                            }
-                          },
+
+  Widget resources() => collapsibleSection(
+    title: 'Turn resources',
+    id: 'resources',
+    expanded: resourcesExpanded,
+    toggle: () => setState(() => resourcesExpanded = !resourcesExpanded),
+    children: [
+      DirectEditor(
+        key: ValueKey('resources-${record?['id'] ?? 'local'}'),
+        name: 'Resources',
+        values: {'Main!AR25': raw('AR25')},
+        integers: const {'Main!AR25'},
+        onEditingChanged: (value) => markDraft('resources', value),
+        onSave: commit,
+        builder: (context, draft) => resourceRow(
+          'Reactions',
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 58,
+                child: draft.field(
+                  'Main!AR25',
+                  'Reactions remaining',
+                  align: TextAlign.end,
+                ),
+              ),
+              DiceText(v('AT25')),
+            ],
+          ),
+        ),
+      ),
+      resourceRow(
+        'Shield bonus lost',
+        Semantics(
+          label: 'Shield bonus lost',
+          child: resourceChoice('AW25', 'Shield bonus lost', [
+            0,
+            2,
+            3,
+            4,
+            6,
+            8,
+          ]),
+        ),
+      ),
+      Wrap(
+        spacing: 7,
+        runSpacing: 6,
+        children: [
+          for (final (address, name) in [
+            ('BB25', 'Shield I'),
+            ('BD25', 'Shield II'),
+          ])
+            FilterChip(
+              key: ValueKey('resource-$address'),
+              label: Text(
+                '$name ${raw(address) == true ? 'Equipped' : 'Away'}',
+              ),
+              selected: raw(address) == true,
+              onSelected: (value) => resourceChange(address, value),
+            ),
+        ],
+      ),
+      resourceRow(
+        'Strong Ideals',
+        Semantics(
+          toggled: raw('BG25') == true,
+          child: TextButton.icon(
+            key: const ValueKey('resource-BG25'),
+            onPressed: () => resourceChange('BG25', raw('BG25') != true),
+            icon: Icon(
+              raw('BG25') == true
+                  ? Icons.check_box_outlined
+                  : Icons.check_box_outline_blank,
+              size: 18,
+            ),
+            label: Text(raw('BG25') == true ? 'Active' : 'Inactive'),
+          ),
+        ),
+      ),
+      resourceRow(
+        'Allies ahead in initiative',
+        Semantics(
+          label: 'Allies ahead in initiative',
+          child: resourceChoice('BJ25', 'Allies ahead in initiative', [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+          ]),
+        ),
+      ),
+      const SizedBox(height: 6),
+      textLabel('Hero points'),
+      Wrap(
+        children: [
+          for (final (i, address) in ['AN25', 'AO25', 'AP25'].indexed)
+            IconButton(
+              key: ValueKey('resource-$address'),
+              onPressed: () => resourceChange(address, raw(address) != true),
+              tooltip: 'Toggle Hero Point ${i + 1}',
+              icon: Icon(
+                raw(address) == true ? Icons.stars : Icons.star_border,
+                color: SheetPalette.of(context).accent,
+              ),
+            ),
+        ],
+      ),
+      DiceText(
+        'Resources change only when you edit them; actions are not spent automatically.',
+        style: TextStyle(color: SheetPalette.of(context).muted, fontSize: 11),
+      ),
+    ],
+  );
+  Widget conditions() => collapsibleSection(
+    title: 'Conditions',
+    id: 'conditions',
+    expanded: conditionsExpanded,
+    toggle: () => setState(() => conditionsExpanded = !conditionsExpanded),
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: DiceText(
+          'Toggle to recalculate affected values',
+          style: TextStyle(color: SheetPalette.of(context).muted, fontSize: 12),
+        ),
+      ),
+      LayoutBuilder(
+        builder: (context, c) {
+          final columns = c.maxWidth >= 360 ? 3 : 2;
+          return Wrap(
+            children: [
+              for (var r = 5; r <= 19; r++)
+                if (v('BG$r').isNotEmpty)
+                  SizedBox(
+                    width: c.maxWidth / columns,
+                    child: Tooltip(
+                      message:
+                          rules.cell('Main', 'BG$r')['note'] ??
+                          'No description in source',
+                      child: CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        visualDensity: VisualDensity.compact,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(
+                          v('BG$r'),
+                          style: const TextStyle(fontSize: 12),
                         ),
+                        value: raw('BF$r') == true,
+                        onChanged: (value) async {
+                          try {
+                            await commit({'Main!BF$r': value == true});
+                          } catch (error) {
+                            notify(error);
+                          }
+                        },
                       ),
                     ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 14),
-        DiceText(
-          'Narrative effects, disadvantage, and action restrictions are shown in tooltips. Only sheet formulas change numeric totals.',
-          style: TextStyle(color: SheetPalette.of(context).muted, fontSize: 11),
-        ),
-      ],
-    ),
+                  ),
+            ],
+          );
+        },
+      ),
+      const SizedBox(height: 14),
+      DiceText(
+        'Narrative effects, disadvantage, and action restrictions are shown in tooltips. Only sheet formulas change numeric totals.',
+        style: TextStyle(color: SheetPalette.of(context).muted, fontSize: 11),
+      ),
+    ],
   );
   Widget attacks() => box(
     Column(
@@ -2372,7 +2439,7 @@ class _LedgerState extends State<Ledger> {
                           ),
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.only(left: 6),
+                              padding: const EdgeInsets.only(left: 12),
                               child: textLabel('Item'),
                             ),
                           ),
@@ -2406,11 +2473,14 @@ class _LedgerState extends State<Ledger> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: draft.field(
-                                    'Main!BM$r',
-                                    'Pack item ${r - 17}',
-                                    hint: 'Add pack item…',
-                                    maxLines: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: draft.field(
+                                      'Main!BM$r',
+                                      'Pack item ${r - 17}',
+                                      hint: 'Add pack item…',
+                                      maxLines: 3,
+                                    ),
                                   ),
                                 ),
                                 Container(

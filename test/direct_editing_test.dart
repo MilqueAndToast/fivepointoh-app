@@ -44,6 +44,29 @@ void main() {
       await tap(find.text('Explore The Rags Reference Locally'));
       expect(find.byTooltip('Edit Turn Resources'), findsNothing);
       await type('Main!AR25', '2');
+      await tap(find.byKey(const ValueKey('toggle-resources')));
+      expect(find.byKey(const ValueKey('direct-Main!AR25')), findsNothing);
+      expect(find.text('Save Resources'), findsNothing);
+      expect(
+        find.text('Toggle to recalculate affected values'),
+        findsOneWidget,
+      );
+      await tap(find.byKey(const ValueKey('toggle-conditions')));
+      expect(find.text('Toggle to recalculate affected values'), findsNothing);
+      await tap(find.byKey(const ValueKey('toggle-resources')));
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const ValueKey('direct-Main!AR25')))
+            .controller!
+            .text,
+        '2',
+      );
+      expect(find.text('Toggle to recalculate affected values'), findsNothing);
+      await tap(find.byKey(const ValueKey('toggle-conditions')));
+      expect(
+        find.text('Toggle to recalculate affected values'),
+        findsOneWidget,
+      );
       await tap(find.text('Save Resources'));
       expect(saved()['Main!AR25'], 2);
       expect(find.text('Save Resources'), findsNothing);

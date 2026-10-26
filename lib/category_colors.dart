@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'sheet_palette.dart';
 
-/// Original sheet pastel hues, with INT using the requested faded blue.
+/// Sheet-inspired pastels, with INT using the requested faded blue.
 const abilityCategoryColors = <String, Color>{
   'STR': Color(0xffea9999),
   'DEX': Color(0xff87aba1),
