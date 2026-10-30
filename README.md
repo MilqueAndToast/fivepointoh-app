@@ -2,6 +2,10 @@
 
 A working Flutter web/Android app based on **Rags - 5.0 Brett Character Sheet**. The Google Sheet is unchanged. Imported data and formulas live in `assets/reference.json`; subsequent character edits live in the app's database.
 
+**[Open the browser app](https://milqueandtoast.github.io/fivepointoh-app/)**
+
+The GitHub Pages edition is publicly accessible. Character edits stay in that browser; use Copy Backup and Workshop's Restore Backup to transfer them. It opens directly into the sheet. Shared DM/player accounts remain available in the self-hosted campaign edition below.
+
 ![Character ledger Overview in dark mode, showing vitality, defenses and movement, attacks, ability scores, turn resources, conditions, and skills.](docs/images/overview-dark.png)
 
 ## Try it
@@ -40,7 +44,9 @@ New characters start as **copies of Rags**, with a new name and owner; they are 
 
 ## Sharing and backups
 
-The default server is private to this computer (`127.0.0.1`). The app is **not published online**. To play from different locations, deploy the Dart server and its web build to a persistent host with HTTPS, a private data volume, and backups. No hosting account or credentials have been configured. For a controlled private network you can bind with `start.ps1 -BindAddress 0.0.0.0`; firewall and trusted HTTPS access still need to be configured for that network. Do not expose the development HTTP server directly to the public internet.
+The browser-local edition is hosted at the link above. It keeps a separate character copy for each browser and does not host campaign accounts or a shared database. See [browser hosting](docs/browser-hosting.md) for the build and publishing setup.
+
+The default campaign server is private to this computer (`127.0.0.1`). To share campaign characters across locations, deploy the Dart server and its web build to a persistent host with HTTPS, a private data volume, and backups. That shared backend has not been deployed. For a controlled private network you can bind with `start.ps1 -BindAddress 0.0.0.0`; firewall and trusted HTTPS access still need to be configured for that network. Do not expose the development HTTP server directly to the public internet.
 
 The database is `server/data/campaign.db` (Sembast, an embedded document database). Stop the server before copying this file for a complete backup, including accounts, sessions, characters, and audit history. Keep it private. Character JSON backups contain editable character values only, not accounts or server history. The UI shows the latest 100 events; the database retains all saved events.
 

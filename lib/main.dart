@@ -23,6 +23,8 @@ import 'health_adjustment.dart';
 
 void main() => runApp(const LedgerApp());
 
+const browserLocalOnly = bool.fromEnvironment('BROWSER_LOCAL_ONLY');
+
 class LedgerApp extends StatefulWidget {
   const LedgerApp({super.key});
   @override
@@ -184,6 +186,7 @@ class _LedgerState extends State<Ledger> {
       jsonDecode(await rootBundle.loadString('assets/reference.json')),
     );
     prefs = await SharedPreferences.getInstance();
+    if (browserLocalOnly) await explore();
     if (mounted) setState(() => loading = false);
   }
 
@@ -550,11 +553,12 @@ class _LedgerState extends State<Ledger> {
               ),
               actions: [
                 const AppearanceToggle(compact: true),
-                IconButton(
-                  onPressed: logout,
-                  icon: const Icon(Icons.logout),
-                  tooltip: 'Sign Out',
-                ),
+                if (!browserLocalOnly)
+                  IconButton(
+                    onPressed: logout,
+                    icon: const Icon(Icons.logout),
+                    tooltip: 'Sign Out',
+                  ),
               ],
             ),
       drawer: wide
@@ -609,7 +613,9 @@ class _LedgerState extends State<Ledger> {
                         Expanded(
                           child: DiceText(
                             local
-                                ? 'LOCAL EXPLORATION • not shared with your DM'
+                                ? (browserLocalOnly
+                                      ? 'SAVED IN THIS BROWSER • use backups to transfer'
+                                      : 'LOCAL EXPLORATION • not shared with your DM')
                                 : status,
                             style: TextStyle(
                               fontSize: 12,
@@ -780,17 +786,18 @@ class _LedgerState extends State<Ledger> {
             : '${user?['username']} • ${isDm ? 'Dungeon Master' : 'Player'}',
         style: TextStyle(color: SheetPalette.of(context).muted, fontSize: 12),
       ),
-      TextButton.icon(
-        onPressed: logout,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+      if (!browserLocalOnly)
+        TextButton.icon(
+          onPressed: logout,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+          ),
+          icon: const Icon(Icons.logout, size: 16),
+          label: DiceText(
+            local ? 'Back To Sign In' : 'Sign Out',
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
-        icon: const Icon(Icons.logout, size: 16),
-        label: DiceText(
-          local ? 'Back To Sign In' : 'Sign Out',
-          style: const TextStyle(fontSize: 12),
-        ),
-      ),
       const SizedBox(height: 14),
     ],
   );
